@@ -14,12 +14,12 @@ echo " "
 echo "Let's see the files individually:"
 for i in $(find "$current_folder" -type f -name "*.fa" -or -name "*.fasta")
 do echo " "
-echo "---- For file "$i" :"
-if [[ -f "$i" ]]; then echo " > Is a file, not a symlink."; else echo " > Is a symlink."; fi;
+if [[ ! -r $i ]]; then echo "---- '$i' is not readable, it will be skipped."
+else echo "---- For file "$i" :"
+if [[ -h "$i" ]]; then echo " > Is a symlink."; else echo " > Is a file."; fi;
 
 if grep -q "[^ATCGN]" < <(awk '$1!~/>/{print $0}' "$i" | tr '\n' ' ' | sed 's/ //g' | sed 's/-//g') ; then echo " > It contains $(grep ">" -c "$i") sequences, and those have a total length of $(awk '$1!~/>/{print $0}' "$i" | tr '\n' ' ' | sed 's/ //g' | sed 's/-//g'| wc -m) aminoacids."; else echo " > It contains $(grep ">" -c "$i") sequences, and those have a total length of $(awk '$1!~/>/{print $0}' "$i" | tr '\n' ' ' | sed 's/ //g' | sed 's/-//g'| wc -m) nucleotides."
 fi
-
 
 if [[ $N_numberoflines -eq 0 ]]; then continue
 elif [[ $(wc -l < "$i") -le $((2*$N_numberoflines)) ]]; then echo "--> Total content:"; cat "$i"
@@ -28,7 +28,8 @@ head -n $N_numberoflines "$i"
 echo "..."
 tail -n $N_numberoflines "$i"
 fi
+fi
 done
 
 
- #CURRENT VERSION: NOV 17
+ #CURRENT VERSION: NOV 20
