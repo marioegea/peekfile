@@ -26,12 +26,12 @@ else echo "---- For file "$i" :"
 if [[ -h "$i" ]]; then echo " > It is a symlink."; else echo " > It is a file."; fi;
 #this simple condition allows us to differentiate between files and symlinks (which are -h).
 
-if grep -q "[^ATCGNU]" < <(awk '$1!~/>/{print $0}' "$i" | tr '\n' ' ' | sed 's/ //g' | sed 's/-//g') ; then echo " > It contains $(grep ">" -c "$i") sequences, and those have a total length of $(awk '$1!~/>/{print $0}' "$i" | tr '\n' ' ' | sed 's/ //g' | sed 's/-//g'| wc -m) aminoacids."; else echo " > It contains $(grep ">" -c "$i") sequences, and those have a total length of $(awk '$1!~/>/{print $0}' "$i" | tr '\n' ' ' | sed 's/ //g' | sed 's/-//g'| wc -m) nucleotides."
+if grep -qi "[^ATCGNU]" < <(awk '$1!~/>/{print $0}' "$i" | tr '\n' ' ' | sed 's/ //g' | sed 's/-//g') ; then echo " > It contains $(grep ">" -c "$i") sequences, and those have a total length of $(awk '$1!~/>/{print $0}' "$i" | tr '\n' ' ' | sed 's/ //g' | sed 's/-//g'| wc -m) aminoacids."; else echo " > It contains $(grep ">" -c "$i") sequences, and those have a total length of $(awk '$1!~/>/{print $0}' "$i" | tr '\n' ' ' | sed 's/ //g' | sed 's/-//g'| wc -m) nucleotides."
 fi
 #Okay this construct is meant to give us an analysis of the file. It's divided in two possible outcomes, aminoacids (if the first "if" turns out TRUE) or nucleotides.
 #The first "IF" construct, the one that differentiates aminoacids from nucleotides, looks for letters that aren't ATCGNU (with [^ATCGNU]) in the lines that don't contain ">" (as we want to perform
-#this search in the sequences, not in the FASTA headers) with grep. Grep will give a positive result (not print it, due to -q) if something else than ATCGNU is found (ACTG for DNA, N for unspecified, U for uracil for possible RNA sequences),
-#meaning that the sequences are aminoacidic.
+#this search in the sequences, not in the FASTA headers) with grep. Grep will give a positive result (not print it, due to -q) if something else than ATCGNU (or atcgnu, as specified with -i) is found
+#(ACTG for DNA, N for unspecified, U for uracil for possible RNA sequences), meaning that the sequences are aminoacidic.
 #Else, it will print the same output but with nucleotides as the last word instead of aminoacids. "< <" is used to give grep a command as an argument.
 #The search will be performed in all the lines that don't contain >, replacing the new lines to spaces, and then deleting both spaces and "-".
 #To count the amount of sequences, we use grep ">" -c $i (-c prints the amount of occurences), and the length of those is computed with the same construct as before adding wc -m at the end,
